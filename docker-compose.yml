@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: creditrisk-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: creditrisk
+      POSTGRES_PASSWORD: creditrisk
+      POSTGRES_DB: creditrisk_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U creditrisk -d creditrisk_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: creditrisk-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql://creditrisk:creditrisk@db:5432/creditrisk_db
+      HOST: 0.0.0.0
+      PORT: 8000
+      LOG_LEVEL: INFO
+      MLFLOW_TRACKING_URI: sqlite:///./mlflow.db
+      DECISION_THRESHOLD: 0.47
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

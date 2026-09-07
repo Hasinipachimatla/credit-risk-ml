@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CreditRiskML — Credit Underwriting & MLOps Platform</title>
+  <meta name="description" content="Production-grade Credit Risk Machine Learning & MLOps Dashboard. Real-time scoring, statistical drift monitoring, and automated retraining.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo">CR</div>
+      <div class="brand-text">
+        <h1>CreditRiskML</h1>
+        <p>Production Credit Risk & MLOps Platform</p>
+      </div>
+    </div>
+
+    <div class="nav-controls">
+      <div class="model-badge">
+        <span class="status-dot"></span>
+        <span id="header-model-info">Champion: LogisticRegression (v1)</span>
+      </div>
+      <a href="/docs" target="_blank" class="header-link">API Docs</a>
+      <a href="/health" target="_blank" class="header-link">System Health</a>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="tabs-nav">
+    <button class="tab-btn active" data-tab="tab-scoring">
+      <span>⚡</span> Underwriting Scorer
+    </button>
+    <button class="tab-btn" data-tab="tab-model">
+      <span>📊</span> Model & Performance
+    </button>
+    <button class="tab-btn" data-tab="tab-monitoring">
+      <span>🛰️</span> MLOps Drift & Retraining
+    </button>
+    <button class="tab-btn" data-tab="tab-logs">
+      <span>📋</span> Inference Logs
+    </button>
+  </nav>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+
+    <!-- TAB 1: Underwriting Scorer -->
+    <section id="tab-scoring" class="tab-panel active">
+      <div class="scoring-grid">
+        
+        <!-- Application Input Form -->
+        <div class="card">
+          <div class="card-title">
+            <span>Loan Application Details</span>
+          </div>
+          <div class="card-subtitle">
+            Input applicant attributes to calculate default probability and automated credit rating.
+          </div>
+
+          <!-- Quick Presets -->
+          <div class="presets-bar">
+            <span class="presets-label">Load Preset:</span>
+            <button type="button" class="preset-btn prime" data-preset="prime">✓ Prime Borrower (Low Risk)</button>
+            <button type="button" class="preset-btn borderline" data-preset="borderline">⚠️ Borderline (Medium Risk)</button>
+            <button type="button" class="preset-btn default" data-preset="default">✕ High Risk Default</button>
+          </div>
+
+          <form id="scoring-form">
+            <!-- Section 1: Financial & Loan Terms -->
+            <div class="form-section-title">Loan & Liquidity Parameters</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="status_checking">Checking Account Status</label>
+                <select id="status_checking" name="status_checking" class="form-control" required>
+                  <option value="A11">&lt; 0 DM (Overdrawn / Negative)</option>
+                  <option value="A12">0 to &lt; 200 DM</option>
+                  <option value="A13">&gt;= 200 DM / Salary Account</option>
+                  <option value="A14" selected>No checking account / None</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="duration_months">Loan Duration (Months)</label>
+                <input type="number" id="duration_months" name="duration_months" class="form-control" min="1" max="120" value="12" required>
+              </div>
+
+              <div class="form-group">
+                <label for="credit_amount">Credit Amount (DM)</label>
+                <input type="number" id="credit_amount" name="credit_amount" class="form-control" min="100" max="50000" value="1500" required>
+              </div>
+
+              <div class="form-group">
+                <label for="purpose">Loan Purpose</label>
+                <select id="purpose" name="purpose" class="form-control" required>
+                  <option value="A40" selected>Car (New)</option>
+                  <option value="A41">Car (Used)</option>
+                  <option value="A42">Furniture / Equipment</option>
+                  <option value="A43">Radio / Television</option>
+                  <option value="A44">Domestic Appliances</option>
+                  <option value="A45">Repairs</option>
+                  <option value="A46">Education</option>
+                  <option value="A48">Retraining</option>
+                  <option value="A49">Business</option>
+                  <option value="A410">Others</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="savings_account">Savings Account / Bonds</label>
+                <select id="savings_account" name="savings_account" class="form-control" required>
+                  <option value="A61">&lt; 100 DM (Low)</option>
+                  <option value="A62">100 to &lt; 500 DM</option>
+                  <option value="A63">500 to &lt; 1000 DM</option>
+                  <option value="A64" selected>&gt;= 1000 DM (Substantial)</option>
+                  <option value="A65">Unknown / No Savings</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="installment_rate_pct">Installment Rate (% Disposable Income)</label>
+                <input type="number" id="installment_rate_pct" name="installment_rate_pct" class="form-control" min="1" max="100" value="2" required>
+              </div>
+            </div>
+
+            <!-- Section 2: Credit History & Demographics -->
+            <div class="form-section-title">Credit History & Employment</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="credit_history">Credit History</label>
+                <select id="credit_history" name="credit_history" class="form-control" required>
+                  <option value="A30">No credits taken / all paid back</option>
+                  <option value="A31">All credits at this bank paid back</option>
+                  <option value="A32">Existing credits paid back duly</option>
+                  <option value="A33">Delay in paying off in past</option>
+                  <option value="A34" selected>Critical account / other credits</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="employment_since">Present Employment Since</label>
+                <select id="employment_since" name="employment_since" class="form-control" required>
+                  <option value="A71">Unemployed</option>
+                  <option value="A72">&lt; 1 year</option>
+                  <option value="A73">1 to &lt; 4 years</option>
+                  <option value="A74">4 to &lt; 7 years</option>
+                  <option value="A75" selected>&gt;= 7 years (Tenured)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="personal_status_sex">Personal Status & Sex</label>
+                <select id="personal_status_sex" name="personal_status_sex" class="form-control" required>
+                  <option value="A91">Male : Divorced / Separated</option>
+                  <option value="A92">Female : Divorced / Separated / Married</option>
+                  <option value="A93" selected>Male : Single</option>
+                  <option value="A94">Male : Married / Widowed</option>
+                  <option value="A95">Female : Single</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="other_debtors">Other Debtors / Guarantors</label>
+                <select id="other_debtors" name="other_debtors" class="form-control" required>
+                  <option value="A101" selected>None</option>
+                  <option value="A102">Co-applicant</option>
+                  <option value="A103">Guarantor</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="age_years">Age in Years</label>
+                <input type="number" id="age_years" name="age_years" class="form-control" min="18" max="100" value="45" required>
+              </div>
+
+              <div class="form-group">
+                <label for="residence_since_years">Present Residence Since (Years)</label>
+                <input type="number" id="residence_since_years" name="residence_since_years" class="form-control" min="1" max="10" value="4" required>
+              </div>
+            </div>
+
+            <!-- Section 3: Collateral & Commitments -->
+            <div class="form-section-title">Collateral & Liabilities</div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="property">Property / Assets</label>
+                <select id="property" name="property" class="form-control" required>
+                  <option value="A121" selected>Real Estate</option>
+                  <option value="A122">Building Society Savings / Life Insurance</option>
+                  <option value="A123">Car or Other Property</option>
+                  <option value="A124">Unknown / No Property</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="housing">Housing Arrangement</label>
+                <select id="housing" name="housing" class="form-control" required>
+                  <option value="A151">Rent</option>
+                  <option value="A152" selected>Own</option>
+                  <option value="A153">For Free</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="other_installment_plans">Other Installment Plans</label>
+                <select id="other_installment_plans" name="other_installment_plans" class="form-control" required>
+                  <option value="A141">Bank</option>
+                  <option value="A142">Stores</option>
+                  <option value="A143" selected>None</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="existing_credits">Number of Existing Credits</label>
+                <input type="number" id="existing_credits" name="existing_credits" class="form-control" min="1" max="10" value="1" required>
+              </div>
+
+              <div class="form-group">
+                <label for="job">Employment Category / Job</label>
+                <select id="job" name="job" class="form-control" required>
+                  <option value="A171">Unemployed / Unskilled - non-resident</option>
+                  <option value="A172">Unskilled - resident</option>
+                  <option value="A173" selected>Skilled Employee / Official</option>
+                  <option value="A174">Management / Self-employed / Highly Qualified</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="people_liable">People Liable for Maintenance</label>
+                <input type="number" id="people_liable" name="people_liable" class="form-control" min="1" max="10" value="1" required>
+              </div>
+
+              <div class="form-group">
+                <label for="telephone">Telephone Registration</label>
+                <select id="telephone" name="telephone" class="form-control" required>
+                  <option value="A191">None</option>
+                  <option value="A192" selected>Yes, Registered</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="foreign_worker">Foreign Worker</label>
+                <select id="foreign_worker" name="foreign_worker" class="form-control" required>
+                  <option value="A201" selected>Yes</option>
+                  <option value="A202">No</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" id="btn-score-app" class="btn-primary">
+              ⚡ Evaluate Borrower Application
+            </button>
+          </form>
+        </div>
+
+        <!-- Scoring Output Panel -->
+        <div class="results-container">
+          <div class="score-display-card">
+            <div class="card-title" style="justify-content: center;">
+              <span>Predicted Default Risk</span>
+            </div>
+
+            <!-- Semi-Circle Gauge -->
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 200 110">
+                <!-- Background Arc -->
+                <path class="gauge-bg" d="M 20 100 A 80 80 0 0 1 180 100" />
+                <!-- Dynamic Fill Arc -->
+                <path id="gauge-fill-path" class="gauge-fill" d="M 20 100 A 80 80 0 0 1 180 100" />
+              </svg>
+              <div class="gauge-center-text">
+                <div id="gauge-val" class="gauge-value">--%</div>
+                <div class="gauge-sublabel">Default Probability</div>
+              </div>
+            </div>
+
+            <div id="risk-badge" class="risk-badge low">
+              🛡️ Low Risk Tier
+            </div>
+
+            <!-- Metric Summary Grid -->
+            <div class="metrics-pill-grid">
+              <div class="metric-pill">
+                <div class="metric-pill-label">Underwriting Action</div>
+                <div id="res-decision" class="metric-pill-value">APPROVE</div>
+              </div>
+              <div class="metric-pill">
+                <div class="metric-pill-label">Decision Threshold</div>
+                <div id="res-threshold" class="metric-pill-value">0.47</div>
+              </div>
+              <div class="metric-pill">
+                <div class="metric-pill-label">Inference Latency</div>
+                <div id="res-latency" class="metric-pill-value">-- ms</div>
+              </div>
+              <div class="metric-pill">
+                <div class="metric-pill-label">Audit ID</div>
+                <div id="res-id" class="metric-pill-value" style="font-size: 0.85rem; font-family: monospace;">--</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Drivers Card -->
+          <div class="card">
+            <div class="card-title">
+              <span>Risk Contributing Indicators</span>
+            </div>
+            <div class="card-subtitle">
+              Heuristic feature impacts calculated against the baseline credit portfolio.
+            </div>
+            <div id="risk-factors-list" class="drivers-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: Model & Performance -->
+    <section id="tab-model" class="tab-panel">
+      <!-- Top Metrics Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-title">Champion Model</div>
+          <div id="meta-name" class="stat-value" style="font-size: 1.25rem;">LogisticRegression</div>
+          <div class="stat-desc">Version: <span id="meta-version">v1</span> • Status: <span id="meta-status">CHAMPION</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Decision Threshold</div>
+          <div id="meta-threshold" class="stat-value" style="color: var(--accent-cyan);">0.47</div>
+          <div class="stat-desc">Optimized for high recall on defaults</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Holdout ROC-AUC</div>
+          <div id="metric-roc-auc" class="stat-value" style="color: var(--accent-emerald);">0.768</div>
+          <div class="stat-desc">PR-AUC: <span id="metric-prauc">0.575</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Default Recall</div>
+          <div id="metric-recall" class="stat-value" style="color: var(--accent-emerald);">75.6%</div>
+          <div class="stat-desc">Precision: <span id="metric-precision">50.8%</span> • F1: <span id="metric-f1">0.607</span></div>
+        </div>
+      </div>
+
+      <!-- Evaluation Plots -->
+      <div class="plots-grid">
+        <div class="plot-card">
+          <div class="card-title">ROC Curve</div>
+          <div class="card-subtitle">Receiver Operating Characteristic (AUC: 0.768)</div>
+          <img src="/reports/roc_curve.png" alt="ROC Curve">
+        </div>
+        <div class="plot-card">
+          <div class="card-title">Precision-Recall Curve</div>
+          <div class="card-subtitle">Operating point with 75.6% Default Recall</div>
+          <img src="/reports/precision_recall_curve.png" alt="Precision-Recall Curve">
+        </div>
+        <div class="plot-card">
+          <div class="card-title">Confusion Matrix</div>
+          <div class="card-subtitle">Holdout Test Set Classification Distribution</div>
+          <img src="/reports/confusion_matrix.png" alt="Confusion Matrix">
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MLOps Drift & Retraining -->
+    <section id="tab-monitoring" class="tab-panel">
+      <div class="card">
+        <div class="card-title">
+          <span>Continuous MLOps Monitoring Center</span>
+          <div>
+            <button id="btn-trigger-retrain" class="btn-primary" style="display:inline-flex; width:auto; margin-top:0; padding: 0.5rem 1rem; font-size: 0.85rem;">
+              🔄 Trigger Automated Retraining
+            </button>
+          </div>
+        </div>
+        <div class="card-subtitle" id="perf-status-desc">
+          Evaluates statistical feature drift (Population Stability Index / KS-test) against reference baseline.
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.25rem;">
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">Overall Drift Status:</span>
+          <span id="drift-summary-badge" class="driver-tag positive">Zero Drift</span>
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Feature Name</th>
+                <th>Test Type</th>
+                <th>Statistic</th>
+                <th>p-value</th>
+                <th>Safety Threshold</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="drift-table-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Inference Logs -->
+    <section id="tab-logs" class="tab-panel">
+      <div class="card">
+        <div class="card-title">
+          <span>Recent Prediction Audit Trail</span>
+        </div>
+        <div class="card-subtitle">
+          Real-time log of scored loan applications with latency and risk ratings.
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Audit ID</th>
+                <th>Timestamp</th>
+                <th>Amount</th>
+                <th>Duration</th>
+                <th>Default Prob</th>
+                <th>Risk Tier</th>
+                <th>Latency</th>
+              </tr>
+            </thead>
+            <tbody id="recent-predictions-tbody">
+              <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                  No predictions scored in this session yet. Submit an application in the Underwriting Scorer tab.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

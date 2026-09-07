@@ -1,0 +1,101 @@
+{
+  "champion": {
+    "model_name": "LogisticRegression",
+    "model_version": "v1",
+    "model_path": "models\\credit_risk_model.joblib",
+    "run_id": "0d5b7a4f68874c01b33e8966ef4b2b89",
+    "threshold": 0.47,
+    "val_metrics": {
+      "accuracy": 0.72,
+      "precision": 0.5211,
+      "recall": 0.8222,
+      "f1": 0.6379,
+      "roc_auc": 0.8275,
+      "pr_auc": 0.6615,
+      "brier_score": 0.1792,
+      "threshold": 0.47,
+      "confusion_matrix": [
+        [
+          71,
+          34
+        ],
+        [
+          8,
+          37
+        ]
+      ]
+    },
+    "test_metrics": {
+      "accuracy": 0.7086,
+      "precision": 0.5075,
+      "recall": 0.7556,
+      "f1": 0.6071,
+      "roc_auc": 0.7681,
+      "pr_auc": 0.5751,
+      "brier_score": 0.1949,
+      "threshold": 0.47,
+      "confusion_matrix": [
+        [
+          73,
+          33
+        ],
+        [
+          11,
+          34
+        ]
+      ]
+    },
+    "status": "Champion"
+  },
+  "challengers": [
+    {
+      "model_name": "PyTorch_CreditRiskNet",
+      "model_version": "v1-pytorch",
+      "model_path": "models\\pytorch_credit_model.pt",
+      "run_id": "c6dabb921b47470880cfbbfdd8d32a4f",
+      "threshold": 0.8,
+      "val_metrics": {
+        "accuracy": 0.8133,
+        "precision": 0.7742,
+        "recall": 0.5333,
+        "f1": 0.6316,
+        "roc_auc": 0.8011,
+        "pr_auc": 0.7195,
+        "brier_score": 0.1866,
+        "threshold": 0.8,
+        "confusion_matrix": [
+          [
+            98,
+            7
+          ],
+          [
+            21,
+            24
+          ]
+        ]
+      },
+      "test_metrics": {
+        "accuracy": 0.755,
+        "precision": 0.6818,
+        "recall": 0.3333,
+        "f1": 0.4478,
+        "roc_auc": 0.7776,
+        "pr_auc": 0.6222,
+        "brier_score": 0.1864,
+        "threshold": 0.8,
+        "confusion_matrix": [
+          [
+            99,
+            7
+          ],
+          [
+            30,
+            15
+          ]
+        ]
+      },
+      "status": "Challenger"
+    }
+  ],
+  "archived": []
+}
