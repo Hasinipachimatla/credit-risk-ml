@@ -137,10 +137,13 @@ class PredictionService:
 
         result = {
             "request_id": req_id,
+            "prediction_id": req_id,
             "prediction": pred,
             "default_probability": round(prob, 4),
             "risk_level": risk_level,
+            "risk_tier": risk_level,
             "decision_threshold": round(threshold, 4),
+            "threshold_used": round(threshold, 4),
             "model_version": version,
             "latency_ms": latency_ms,
             "top_risk_factors": explanations
@@ -171,12 +174,16 @@ class PredictionService:
         for i, prob in enumerate(probs):
             prob_val = float(prob)
             req_id = str(uuid.uuid4())
+            rl = classify_risk_level(prob_val)
             results.append({
                 "request_id": req_id,
+                "prediction_id": req_id,
                 "prediction": int(prob_val >= threshold),
                 "default_probability": round(prob_val, 4),
-                "risk_level": classify_risk_level(prob_val),
+                "risk_level": rl,
+                "risk_tier": rl,
                 "decision_threshold": round(threshold, 4),
+                "threshold_used": round(threshold, 4),
                 "model_version": version,
                 "latency_ms": 0.0,
                 "top_risk_factors": []

@@ -131,10 +131,13 @@ class ExplanationMetric(BaseModel):
 
 class PredictionResponse(BaseModel):
     request_id: str
+    prediction_id: Optional[str] = None
     prediction: int = Field(..., description="0 for Non-default (Good), 1 for Default (Bad)")
     default_probability: float = Field(..., description="Estimated probability of loan default [0.0, 1.0]")
     risk_level: str = Field(..., description="Categorical risk tier: Low, Medium, or High")
+    risk_tier: Optional[str] = None
     decision_threshold: float
+    threshold_used: Optional[float] = None
     model_version: str
     latency_ms: float
     top_risk_factors: List[ExplanationMetric]
