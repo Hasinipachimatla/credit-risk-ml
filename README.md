@@ -119,7 +119,7 @@ Runs automated evaluation scripts to compare newly trained models against the ac
 ## Installation
 
 ```bash
-git clone https://github.com/yourusername/credit-risk-ml.git
+git clone https://github.com/Hasinipachimatla/credit-risk-ml.git
 cd credit-risk-ml
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
